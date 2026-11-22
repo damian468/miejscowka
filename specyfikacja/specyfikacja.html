@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="pl" data-theme="light">
+<head>
+  <!-- Kodowanie znaków -->
+  <meta charset="utf-8">
+  <!-- Responsywność dokumentu -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Tytuł dokumentu -->
+  <title>Specyfikacja – Miejscówka, rezerwacja miejsc do nauki</title>
+  <!-- Tokeny i komponenty prototypu – potrzebne tylko do przykładów w przewodniku stylów (rozdział 5) -->
+  <link rel="stylesheet" href="../interaktywna/assets/miejscowka.css">
+  <style>
+    /* ---------- Dokument w prostym stylu edytora tekstu (Times New Roman, czarny tekst) ---------- */
+    body.spec { background: #fff; color: #000; font-family: "Times New Roman", Times, serif; font-size: 12pt; line-height: 1.4; } /* krój i rozmiar jak w Wordzie */
+    .doc { max-width: 170mm; margin: 0 auto; padding: 10mm 0 20mm; }                     /* szerokość tekstu jak na stronie A4 */
+    .doc h2, .doc h3, .doc h4, .cover h1 { font-family: inherit; color: #000; letter-spacing: normal; font-weight: bold; } /* nagłówki bez stylizacji */
+    .doc h2 { font-size: 16pt; line-height: 1.3; margin: 0 0 10pt; }                     /* tytuł rozdziału */
+    .doc h3 { font-size: 13pt; line-height: 1.3; margin: 14pt 0 6pt; }                   /* podrozdział */
+    .doc h4 { font-size: 12pt; line-height: 1.3; margin: 10pt 0 4pt; }                   /* punkt */
+    .doc p { margin: 0 0 8pt; text-align: justify; }                                     /* akapit wyjustowany */
+    .doc ul, .doc ol { margin: 0 0 8pt; padding-left: 24pt; }                            /* listy */
+    .doc li { margin: 0 0 2pt; }                                                         /* pozycja listy */
+    .doc a { color: #000; text-decoration: none; }                                       /* linki jak zwykły tekst */
+    .doc code { font-family: "Courier New", monospace; font-size: 11pt; }                /* nazwy plików i adresy */
+    /* Strona tytułowa */
+    .cover { display: flex; flex-direction: column; justify-content: space-between; min-height: 247mm; max-width: 170mm; margin: 0 auto; padding-top: 10mm; text-align: center; } /* układ strony tytułowej */
+    .cover h1 { font-size: 22pt; line-height: 1.25; margin: 0 0 12pt; }                  /* tytuł pracy */
+    .cover p { margin: 0 0 6pt; }                                                        /* wiersze strony tytułowej */
+    .cover .sub { font-size: 14pt; }                                                     /* podtytuł */
+    .cover .who { text-align: left; margin-left: auto; width: 80mm; }                    /* dane autora w prawym dolnym rogu */
+    /* Tabele jak „Tabela – siatka” w Wordzie */
+    .t { width: 100%; border-collapse: collapse; margin: 6pt 0 12pt; font-size: 11pt; line-height: 1.3; } /* tabela */
+    .t th, .t td { border: 1px solid #000; padding: 3pt 5pt; vertical-align: top; text-align: left; } /* komórki z cienką czarną linią */
+    .t th { font-weight: bold; }                                                         /* wiersz nagłówka – tylko pogrubienie */
+    .t .color { width: 18mm; }                                                           /* komórka z próbką koloru */
+    /* Rysunki wstawione jak obrazy w Wordzie */
+    figure { margin: 8pt 0 12pt; }                                                       /* rysunek */
+    figcaption { font-size: 10pt; text-align: center; margin-top: 4pt; }                 /* podpis pod rysunkiem */
+    .shot { display: block; width: auto; height: auto; max-width: 100%; margin: 0 auto; border: 1px solid #000; } /* zrzut ekranu w cienkiej ramce */
+    .shots { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 1fr); gap: 12pt; align-items: start; } /* komputer i telefon obok siebie */
+    .shots--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }                                 /* trzy zrzuty w rzędzie */
+    .shots--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }                                        /* dwa zrzuty w rzędzie */
+    .mermaid { display: flex; justify-content: center; margin: 8pt 0 12pt; padding: 0; background: #fff; border: 0; } /* diagram bez ramki */
+    .mermaid .edgeLabel rect { fill: #fff !important; opacity: 1 !important; }           /* podpisy strzałek na białym tle */
+    /* Przykłady komponentów aplikacji (rozdział 5) – w kroju aplikacji, bez ramek dokumentu */
+    .demo { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin: 6pt 0 12pt; } /* rząd przykładów */
+    .demo .label-under { display: flex; flex-direction: column; gap: 4px; align-items: center; font-size: 10pt; text-align: center; color: #000; } /* przykład z podpisem */
+    .demo :is(.btn, .chip, .switch, .segmented, .numstep, .badge, .seat, .tabs, .field, .card, .toast, .modal, .bar), .sample { font-family: var(--font); } /* elementy aplikacji w jej kroju (Inter) */
+    .spacing-bar { display: inline-block; height: 10px; background: #000; vertical-align: middle; } /* wizualizacja odstępu */
+    .icons td { text-align: center; width: 12.5%; font-size: 10pt; }                    /* tabela ikon */
+    .icons .icon { display: block; width: 24px; height: 24px; margin: 2px auto 4px; }    /* ikona w tabeli */
+    /* Druk / PDF – marginesy jak domyślne w Wordzie (2,5 cm) */
+    @page { size: A4; margin: 25mm; }                                                    /* format strony */
+    @media print {
+      .cover { min-height: 245mm; padding-top: 0; break-after: page; }                   /* strona tytułowa osobno */
+      .doc { padding: 0; max-width: none; }                                              /* pełna szerokość obszaru tekstu */
+      .doc h2 { break-before: page; }                                                    /* rozdział od nowej strony */
+      .doc h3, .doc h4 { break-after: avoid; }                                           /* nagłówek przy treści */
+      .view { break-inside: avoid; }                                                     /* widok w całości na jednej stronie */
+      .view + .view { break-before: page; }                                              /* każdy widok na osobnej stronie */
+      figure, .mermaid, .demo, tr { break-inside: avoid; }                               /* bez dzielenia elementów */
+      .shot { max-height: 175mm; }                                                       /* zrzut mieści się na stronie z nagłówkiem i opisem */
+      .mermaid svg { max-height: 190mm; width: auto !important; max-width: 100%; }       /* wysokie diagramy pomniejszone do strony */
+      .mermaid.nav svg { max-height: 140mm; }                                            /* diagram nawigacji z tabelą na jednej stronie */
+      .doc h3 + .mermaid, .doc h3 + figure, .doc h3 + p { break-before: avoid; }         /* nagłówek nie zostaje sam */
+    }
+  </style>
+</head>
+<body class="spec">
+
+<!-- =================================================================== STRONA TYTUŁOWA -->
+<header class="cover">
+  <p>Komunikacja człowiek–komputer – projekt 3</p>
+  <div>
+    <h1>Miejscówka – rezerwacja miejsc do nauki na uczelni</h1>
+    <p class="sub">Specyfikacja i projekt interfejsu aplikacji webowej</p>
+  </div>
+  <div class="who">
+    <p>Autor: [imię i nazwisko]</p>
+    <p>Data: 22 listopada 2026</p>
+    <p>Prototyp interaktywny: <code>prototyp/index.html</code></p>
+  </div>
+</header>
+
+<main class="doc">
+
+<!-- =================================================================== 1 -->
+<section id="s1">
+  <h2>1. Ogólny opis tematu projektu</h2>
+  <p>Miejscówka to aplikacja webowa uczelni, która pokazuje wolne miejsca do nauki, pozwala je zarezerwować w kilku kliknięciach i pilnuje, by zarezerwowane miejsca były naprawdę wykorzystywane – dzięki meldowaniu kodem QR.</p>
+
+  <h3>Problem</h3>
+  <ul>
+    <li>W sesji biblioteka i sale do nauki są przepełnione – studenci tracą czas na szukanie wolnego miejsca.</li>
+    <li>Miejsca są „zajmowane” rzeczami na wiele godzin, choć nikt przy nich nie siedzi.</li>
+    <li>Pokoje do pracy grupowej rezerwuje się mailowo lub na kartce w recepcji.</li>
+  </ul>
+  <h3>Rozwiązanie</h3>
+  <ul>
+    <li>Wolne miejsca i obłożenie budynków – na liście, na mapie kampusu i na planie sali.</li>
+    <li>Rezerwacja miejsca lub całego pokoju grupowego na wybrane godziny (do 4 h, do 5 dni naprzód).</li>
+    <li>Meldowanie kodem QR – niezameldowane miejsce po 15 minutach wraca do puli.</li>
+    <li>Panel administratora: obłożenie i czasowe blokowanie sal.</li>
+  </ul>
+
+  <h3>Użytkownicy</h3>
+  <table class="t">
+    <tr><th style="width:20%">Rola</th><th>Kto to jest</th><th>Najważniejsze zadania</th></tr>
+    <tr><td>Student</td><td>Osoba ucząca się na kampusie (także w grupie), korzysta głównie z telefonu.</td><td>Znaleźć wolne miejsce, zarezerwować je, zameldować się, anulować rezerwację.</td></tr>
+    <tr><td>Administrator</td><td>Pracownik biblioteki lub administracji budynku, pracuje na komputerze.</td><td>Sprawdzić obłożenie sal, zablokować salę na czas serwisu lub egzaminu.</td></tr>
+  </table>
+
+  <h3>Typ aplikacji, rozdzielczość i urządzenia</h3>
+  <p>Aplikacja webowa, responsywna (RWD) – jedna wersja działająca w przeglądarce na telefonie, tablecie i komputerze. Minimalna obsługiwana rozdzielczość: 360 × 640 px (piksele CSS). Treść nie wymaga przewijania w poziomie nawet przy szerokości 320 px.</p>
+  <table class="t">
+    <tr><th>Urządzenie</th><th>Szerokość ekranu</th><th>Układ</th><th>Nawigacja</th><th>Urządzenie testowe</th></tr>
+    <tr><td>Telefon</td><td>360 – 767 px</td><td>4 kolumny, jedna kolumna treści</td><td>dolny pasek (5 pozycji)</td><td>390 × 844 (np. iPhone 14)</td></tr>
+    <tr><td>Tablet</td><td>768 – 1199 px</td><td>8 kolumn</td><td>pasek ikon z boku</td><td>820 × 1180 (iPad)</td></tr>
+    <tr><td>Komputer</td><td>od 1200 px</td><td>12 kolumn, treść maks. 1280 px</td><td>menu boczne i okruszki</td><td>1366 × 768, 1920 × 1080</td></tr>
+  </table>
+  <p>Przeglądarki: Chrome, Edge, Firefox i Safari w dwóch ostatnich wersjach. Obsługa myszą, dotykiem i w pełni klawiaturą.</p>
+
+  <h3>Widoki aplikacji (10)</h3>
+  <table class="t">
+    <tr><th style="width:8%">ID</th><th style="width:26%">Widok</th><th>Cel</th></tr>
+    <tr><td>V01</td><td>Logowanie</td><td>Logowanie kontem uczelnianym (SSO) lub e-mailem.</td></tr>
+    <tr><td>V02</td><td>Pulpit</td><td>Najbliższa rezerwacja z meldowaniem, szybkie wyszukiwanie, obłożenie budynków.</td></tr>
+    <tr><td>V03</td><td>Wyszukiwarka</td><td>Filtry terminu, budynku i udogodnień oraz lista sal z wolnymi miejscami.</td></tr>
+    <tr><td>V04</td><td>Mapa kampusu</td><td>Budynki z kolorem obłożenia i listą sal wybranego budynku.</td></tr>
+    <tr><td>V05</td><td>Plan sali</td><td>Wybór dnia i godzin oraz miejsca na planie sali.</td></tr>
+    <tr><td>V06</td><td>Rezerwacja</td><td>Podsumowanie, akceptacja zasad, potwierdzenie i ekran sukcesu.</td></tr>
+    <tr><td>V07</td><td>Moje rezerwacje</td><td>Nadchodzące i historia; meldowanie i anulowanie.</td></tr>
+    <tr><td>V08</td><td>Szczegóły i meldowanie</td><td>Status z odliczaniem, kod QR, meldowanie, anulowanie.</td></tr>
+    <tr><td>V09</td><td>Profil i ustawienia</td><td>Powiadomienia, motyw, dane konta, wylogowanie.</td></tr>
+    <tr><td>V10</td><td>Panel administratora</td><td>Wskaźniki dnia i tabela sal z blokowaniem.</td></tr>
+  </table>
+</section>
+
+<!-- =================================================================== 2 -->
+<section id="s2">
+  <h2>2. Diagramy przepływu użytkowników</h2>
+  <p>Diagramy pokazują, jak użytkownicy poruszają się po aplikacji, jakie akcje podejmują i jakie są możliwe ścieżki. Oznaczenia: owal – początek ścieżki, prostokąt – krok lub widok, romb – decyzja.</p>
+
+  <h3>2.1. F1 – Logowanie</h3>
+  <pre class="mermaid">
+flowchart TD
+  A(["Wejście do aplikacji"]) --> B{"Zalogowany?"}
+  B -- tak --> R{"Rola"}
+  B -- nie --> L["V01 Logowanie"]
+  L --> C{"Sposób logowania"}
+  C -- "konto uczelniane" --> SSO["Logowanie SSO uczelni"] --> R
+  C -- "e-mail" --> F["Wpisanie e-maila i hasła"] --> G{"Dane poprawne?"}
+  G -- nie --> H["Komunikat pod polem"] --> F
+  G -- tak --> R
+  R -- student --> P["V02 Pulpit"]
+  R -- administrator --> ADM["V10 Panel administratora"]
+  </pre>
+
+  <h3>2.2. F2 – Wyszukanie i rezerwacja miejsca</h3>
+  <pre class="mermaid">
+flowchart TD
+  S(["V02 Pulpit"]) --> Q{"Jak szuka?"}
+  Q -- "szybkie wyszukiwanie" --> W["V03 Wyniki"]
+  Q -- "filtry" --> F["Dzień, godziny, budynek, udogodnienia"] --> W
+  Q -- "mapa" --> M["V04 Mapa: budynek i jego sale"]
+  W --> E{"Są wyniki?"}
+  E -- nie --> X["Stan pusty: Wyczyść filtry"] --> F
+  E -- tak --> PL["V05 Plan sali"]
+  M --> PL
+  PL --> T["Dzień i godziny na osi czasu"] --> SM["Wybór miejsca lub liczby osób"]
+  SM --> V{"Poniżej limitu?"}
+  V -- "nie (3 aktywne)" --> VE["Okno: osiągnięto limit"]
+  V -- tak --> K["V06 Potwierdzenie rezerwacji"]
+  K --> KA{"Zasady OK?"}
+  KA -- nie --> KAE["Komunikat pod polem"] --> K
+  KA -- tak --> OK["Sukces: kod rezerwacji"]
+  OK --> ICS["Dodaj do kalendarza"]
+  OK --> DET["V08 Szczegóły rezerwacji"]
+  </pre>
+  <p>Najkrótsza ścieżka: Pulpit → „Teraz, na 2 h” → sala z listy → miejsce na planie → „Zarezerwuj” → akceptacja zasad → „Potwierdź rezerwację” = 6 kliknięć.</p>
+
+  <h3>2.3. F3 – Meldowanie</h3>
+  <pre class="mermaid">
+flowchart TD
+  A(["Rezerwacja potwierdzona"]) --> B["Przypomnienie 15 min przed rozpoczęciem"]
+  B --> C{"Na miejscu?"}
+  C -- "tak, do 15 min po starcie" --> D["Zamelduj się: V02, V07 lub V08"]
+  D --> E{"Metoda"}
+  E -- "skan kodu QR" --> G{"Kod poprawny?"}
+  E -- "kod 4-cyfrowy" --> G
+  G -- nie --> H["Błąd: sprawdź naklejkę na stanowisku"] --> E
+  G -- tak --> I["Status: Trwa – zameldowano"]
+  C -- nie --> K["Miejsce wraca do puli"] --> L["Status: Nieobecność"]
+  </pre>
+
+  <h3>2.4. F4 – Anulowanie rezerwacji</h3>
+  <pre class="mermaid">
+flowchart TD
+  A(["V07 Moje rezerwacje lub V08 Szczegóły"]) --> B["Anuluj"]
+  B --> C["Okno: Anulować rezerwację?"]
+  C --> D{"Decyzja"}
+  D -- "Zostaw" --> A
+  D -- "Anuluj rezerwację" --> E["Status: Anulowana"] --> F["Komunikat z przyciskiem Cofnij"]
+  F -- "Cofnij" --> G["Rezerwacja przywrócona"]
+  F -- "brak akcji" --> H["Rezerwacja w zakładce Historia"]
+  </pre>
+
+  <h3>2.5. F5 – Administrator: blokada sali</h3>
+  <pre class="mermaid">
+flowchart TD
+  A(["V10 Panel administratora"]) --> B["Tabela sal, opcjonalnie filtr budynku"]
+  B --> D{"Akcja"}
+  D -- "Zablokuj" --> E["Okno: powód, powiadomienie osób"] --> F{"Potwierdzono?"}
+  F -- nie --> B
+  F -- tak --> G["Status: Zablokowana"] --> H["Sala znika z wyszukiwarki"]
+  D -- "Odblokuj" --> I["Status: Otwarta"]
+  </pre>
+
+  <h3>2.6. Możliwe stany rezerwacji</h3>
+  <pre class="mermaid">
+stateDiagram-v2
+  state "Potwierdzona" as P
+  state "Czeka na meldowanie" as W
+  state "Trwa (zameldowano)" as A
+  state "Zakończona" as D
+  state "Nieobecność" as N
+  state "Anulowana" as C
+  [*] --> P: utworzenie
+  P --> W: 15 min przed startem
+  W --> A: meldowanie
+  W --> N: brak meldowania
+  P --> C: anulowanie
+  W --> C: anulowanie
+  A --> D: koniec czasu
+  </pre>
+</section>
+
+<!-- =================================================================== 3 -->
+<section id="s3">
+  <h2>3. Diagramy nawigacji</h2>
+  <p>Diagramy pokazują, jak użytkownik przemieszcza się między widokami. Każdy widok ma własny adres (np. <code>#/sala/bg-214</code>), więc działa przycisk „Wstecz” przeglądarki. Od pulpitu do potwierdzenia rezerwacji są najwyżej 3 widoki: Wyszukiwarka (lub Mapa) → Plan sali → Rezerwacja.</p>
+
+  <h3>3.1. Struktura aplikacji</h3>
+  <pre class="mermaid">
+flowchart TD
+  L["V01 Logowanie"] --> P["V02 Pulpit"]
+  P --- N(("Menu główne"))
+  N --> S["V03 Wyszukiwarka"]
+  N --> M["V04 Mapa kampusu"]
+  N --> R["V07 Moje rezerwacje"]
+  N --> PR["V09 Profil"]
+  S --> SALA["V05 Plan sali"]
+  M --> SALA
+  SALA --> K["V06 Rezerwacja"]
+  K --> D["V08 Szczegóły i meldowanie"]
+  R --> D
+  N -. "tylko administrator" .-> A["V10 Panel administratora"]
+  </pre>
+
+  <h3>3.2. Przejścia między widokami</h3>
+  <p>Przejścia wywoływane przyciskami i linkami w treści widoków. Widoki w zaokrąglonych ramkach to pozycje menu – oprócz pokazanych strzałek są dostępne jednym kliknięciem z każdego ekranu (diagram 3.1). Strzałki ciągłe – akcje, przerywane – powroty.</p>
+  <pre class="mermaid nav">
+flowchart TD
+  V01["V01 Logowanie"] -->|"SSO / e-mail"| V02("V02 Pulpit")
+  V01 -->|"rola: administrator"| V10["V10 Panel administratora"]
+  V02 -->|"Szybkie wyszukiwanie"| V03("V03 Wyszukiwarka")
+  V02 -->|"pasek obłożenia"| V04("V04 Mapa kampusu")
+  V03 <-->|"Lista / Mapa"| V04
+  V03 -->|"karta sali"| V05["V05 Plan sali"]
+  V04 -->|"sala w panelu budynku"| V05
+  V05 -->|"Zarezerwuj"| V06["V06 Rezerwacja"]
+  V06 -.->|"Wróć"| V05
+  V06 -->|"Zobacz rezerwację"| V08["V08 Szczegóły i meldowanie"]
+  V02 -->|"Zamelduj się, Szczegóły"| V08
+  V07("V07 Moje rezerwacje") -->|"Szczegóły"| V08
+  V07 -->|"Nowa rezerwacja"| V03
+  V09("V09 Profil") -->|"rola: Administrator"| V10
+  V09 -.->|"Wyloguj"| V01
+  </pre>
+
+  <h3>3.3. Elementy nawigacji</h3>
+  <table class="t">
+    <tr><th style="width:22%">Element</th><th>Gdzie i jak działa</th></tr>
+    <tr><td>Nawigacja globalna</td><td>5 pozycji: Pulpit, Szukaj, Mapa, Rezerwacje, Profil (administrator ma szóstą: Panel admina). Komputer – menu boczne, tablet – pasek ikon, telefon – dolny pasek. Bieżąca pozycja jest wyróżniona.</td></tr>
+    <tr><td>Okruszki</td><td>Na komputerze i tablecie dla widoków zagnieżdżonych, np. Szukaj › Czytelnia cicha 2.14 › Rezerwacja. Na telefonie zastępuje je tytuł w górnym pasku.</td></tr>
+    <tr><td>Menu konta</td><td>Pod awatarem: Profil i ustawienia, zmiana motywu, Wyloguj.</td></tr>
+    <tr><td>Okna modalne</td><td>Meldowanie, anulowanie, limit rezerwacji, blokada sali – nie zmieniają widoku; na telefonie wysuwają się od dołu ekranu.</td></tr>
+  </table>
+</section>
+
+<!-- =================================================================== 4 -->
+<section id="s4">
+  <h2>4. Wireframes</h2>
+  <p>Szkice niskiej wierności pokazują strukturę i rozmieszczenie elementów, bez kolorów i grafiki. Każdy widok przedstawiono w wersji na komputer (1440 px) i na telefon (390 px). Numery w kółkach odpowiadają adnotacjom pod szkicem.</p>
+  <div id="wireframes"></div>
+</section>
+
+<!-- =================================================================== 5 -->
+<section id="s5">
+  <h2>5. Style Guide (Przewodnik stylów)</h2>
+  <p>Wszystkie wartości są zapisane jako tokeny (zmienne CSS) w pliku <code>prototyp/assets/miejscowka.css</code>. Przykłady w tym rozdziale są wyświetlane tym samym kodem co prototyp.</p>
+
+  <h3>5.1. Logo</h3>
+  <div class="demo"><span data-logo="64"></span><span>Znak: pinezka (miejsce na mapie) z otwartą książką (nauka) na zaokrąglonym kwadracie. Nazwa „Miejscówka” zawsze z wielkiej litery. Znak jest czytelny od 16 px.</span></div>
+
+  <h3>5.2. Kolorystyka</h3>
+  <table class="t">
+    <tr><th class="color">Kolor</th><th>Nazwa</th><th>Token</th><th>Wartość</th><th>Zastosowanie</th></tr>
+    <tr><td style="background:#3346D3"></td><td>Główny</td><td><code>--c-primary</code></td><td>#3346D3</td><td>Przyciski, linki, wybór (kontrast 7,1:1)</td></tr>
+    <tr><td style="background:#EEF0FD"></td><td>Główny – tło</td><td><code>--c-primary-tint</code></td><td>#EEF0FD</td><td>Wyróżnienia, aktywne menu</td></tr>
+    <tr><td style="background:#1D7A45"></td><td>Sukces / wolne</td><td><code>--c-success</code></td><td>#1D7A45</td><td>Liczba wolnych miejsc, potwierdzenia (5,4:1)</td></tr>
+    <tr><td style="background:#9A5400"></td><td>Ostrzeżenie</td><td><code>--c-warning</code></td><td>#9A5400</td><td>Oczekiwanie na meldowanie (5,1:1)</td></tr>
+    <tr><td style="background:#C42B37"></td><td>Błąd / anulowanie</td><td><code>--c-danger</code></td><td>#C42B37</td><td>Błędy, akcje destrukcyjne (5,6:1)</td></tr>
+    <tr><td style="background:#161A2B"></td><td>Tekst</td><td><code>--c-text</code></td><td>#161A2B</td><td>Tekst podstawowy (17,3:1)</td></tr>
+    <tr><td style="background:#545C74"></td><td>Tekst drugorzędny</td><td><code>--c-text-muted</code></td><td>#545C74</td><td>Opisy, podpisy (6,7:1)</td></tr>
+    <tr><td style="background:#878EA3"></td><td>Obramowanie pól</td><td><code>--c-border-strong</code></td><td>#878EA3</td><td>Pola formularzy (3,3:1)</td></tr>
+    <tr><td style="background:#F5F6FA"></td><td>Tło aplikacji</td><td><code>--c-bg</code></td><td>#F5F6FA</td><td>Tło za kartami</td></tr>
+    <tr><td style="background:#FFFFFF"></td><td>Karty</td><td><code>--c-surface</code></td><td>#FFFFFF</td><td>Karty, panele, okna</td></tr>
+  </table>
+  <ul>
+    <li>Kolor główny (granat) tylko dla elementów klikalnych i stanu „wybrane”.</li>
+    <li>Wszystkie teksty mają kontrast co najmniej 4,5:1, a obramowania pól 3:1 (wymagania WCAG 2.1 AA).</li>
+    <li>Kolor nigdy nie jest jedynym nośnikiem informacji – zawsze towarzyszy mu tekst, liczba lub wzór.</li>
+  </ul>
+  <h4>Obłożenie i statusy miejsc</h4>
+  <table class="t">
+    <tr><th class="color">Kolor</th><th>Znaczenie</th><th>Wartość</th></tr>
+    <tr><td style="background:#2E9D5B"></td><td>Obłożenie niskie (poniżej 50%)</td><td>#2E9D5B</td></tr>
+    <tr><td style="background:#BF8300"></td><td>Obłożenie średnie (50–80%)</td><td>#BF8300</td></tr>
+    <tr><td style="background:#D2453F"></td><td>Obłożenie wysokie (powyżej 80%)</td><td>#D2453F</td></tr>
+  </table>
+  <div class="demo">
+    <span class="label-under"><span class="seat" style="width:52px">7</span>wolne</span>
+    <span class="label-under"><span class="seat seat--busy" style="width:52px">8</span>zajęte</span>
+    <span class="label-under"><span class="seat seat--sel" style="width:52px">9</span>wybrane</span>
+    <span class="label-under"><span class="seat seat--busy" style="width:52px">Ty</span>Twoja rezerwacja</span>
+  </div>
+  <h4>Motyw ciemny</h4>
+  <table class="t">
+    <tr><th class="color">Kolor</th><th>Nazwa</th><th>Wartość</th></tr>
+    <tr><td style="background:#0E1120"></td><td>Tło</td><td>#0E1120</td></tr>
+    <tr><td style="background:#161A2C"></td><td>Karty</td><td>#161A2C</td></tr>
+    <tr><td style="background:#8C9BFF"></td><td>Główny</td><td>#8C9BFF</td></tr>
+    <tr><td style="background:#E8EBF5"></td><td>Tekst</td><td>#E8EBF5</td></tr>
+    <tr><td style="background:#5BD394"></td><td>Sukces</td><td>#5BD394</td></tr>
+    <tr><td style="background:#FF7B86"></td><td>Błąd</td><td>#FF7B86</td></tr>
+  </table>
+
+  <h3>5.3. Typografia</h3>
+  <p>Krój aplikacji: Inter (licencja SIL Open Font License, pliki dołączone do projektu), zastępczo Segoe UI. Cyfry o stałej szerokości dla godzin i liczników.</p>
+  <table class="t">
+    <tr><th style="width:40%">Próbka</th><th>Token</th><th>Rozmiar / grubość</th><th>Zastosowanie</th></tr>
+    <tr><td><span class="sample" style="font-size:36px;font-weight:700">48%</span></td><td><code>--fs-display</code></td><td>40 px / 700</td><td>Liczby we wskaźnikach</td></tr>
+    <tr><td><span class="sample" style="font-size:28px;font-weight:700">Moje rezerwacje</span></td><td><code>--fs-h1</code></td><td>32 px / 700 (telefon 26)</td><td>Tytuł widoku</td></tr>
+    <tr><td><span class="sample" style="font-size:22px;font-weight:650">Panel budynku</span></td><td><code>--fs-h2</code></td><td>24 px / 650</td><td>Sekcje, tytuły okien</td></tr>
+    <tr><td><span class="sample" style="font-size:19px;font-weight:600">Czytelnia cicha 2.14</span></td><td><code>--fs-h3</code></td><td>20 px / 600</td><td>Nagłówki kart</td></tr>
+    <tr><td><span class="sample" style="font-size:16px">Tekst podstawowy</span></td><td><code>--fs-md</code></td><td>16 px / 400</td><td>Treść, pola formularzy</td></tr>
+    <tr><td><span class="sample" style="font-size:14px">Tekst pomocniczy</span></td><td><code>--fs-sm</code></td><td>14 px / 400</td><td>Opisy, tabele</td></tr>
+    <tr><td><span class="sample overline">Najbliższa rezerwacja</span></td><td><code>.overline</code></td><td>12 px / 650, wersaliki</td><td>Nadtytuły kart</td></tr>
+  </table>
+
+  <h3>5.4. Ikonografia</h3>
+  <p>Własny zestaw ikon liniowych: siatka 24 × 24 px, linia 1,75 px, zaokrąglone końce, bez wypełnień. Rozmiary 16 px (w tekście), 20 px (domyślnie) i 24 px (nawigacja). Ikona przyjmuje kolor tekstu; ikona bez podpisu zawsze ma opis dla czytnika ekranu.</p>
+  <table class="t icons" id="icon-table"></table>
+
+  <h3>5.5. Siatka, odstępy i kształty</h3>
+  <p>Siatka 12 kolumn (komputer), 8 (tablet) i 4 (telefon). Wszystkie odstępy są wielokrotnością 4 px; minimalny rozmiar elementu dotykowego to 44 × 44 px.</p>
+  <table class="t">
+    <tr><th>Token</th><th>Wartość</th><th>Podgląd</th><th>Użycie</th></tr>
+    <tr><td><code>--sp-2</code></td><td>8 px</td><td><span class="spacing-bar" style="width:8px"></span></td><td>odstępy w grupach elementów</td></tr>
+    <tr><td><code>--sp-4</code></td><td>16 px</td><td><span class="spacing-bar" style="width:16px"></span></td><td>margines na telefonie</td></tr>
+    <tr><td><code>--sp-6</code></td><td>24 px</td><td><span class="spacing-bar" style="width:24px"></span></td><td>wnętrze kart, odstęp kolumn</td></tr>
+    <tr><td><code>--sp-7</code></td><td>32 px</td><td><span class="spacing-bar" style="width:32px"></span></td><td>margines na komputerze</td></tr>
+  </table>
+  <table class="t">
+    <tr><th>Element</th><th>Zaokrąglenie</th><th>Cień</th></tr>
+    <tr><td>Pola formularzy</td><td>6 px</td><td>brak</td></tr>
+    <tr><td>Przyciski</td><td>10 px</td><td>brak</td></tr>
+    <tr><td>Karty</td><td>16 px</td><td>delikatny (<code>--sh-1</code>)</td></tr>
+    <tr><td>Okna modalne, menu</td><td>16 px</td><td>wyraźny (<code>--sh-3</code>)</td></tr>
+    <tr><td>Chipy, odznaki</td><td>pełne (kształt pigułki)</td><td>brak</td></tr>
+  </table>
+
+  <h3>5.6. Komponenty</h3>
+  <h4>Przyciski</h4>
+  <div class="demo">
+    <span class="label-under"><button class="btn btn--primary">Zarezerwuj</button>główny</span>
+    <span class="label-under"><button class="btn btn--secondary">Szczegóły</button>drugorzędny</span>
+    <span class="label-under"><button class="btn btn--ghost">Zmień</button>trzeciorzędny</span>
+    <span class="label-under"><button class="btn btn--danger"><span data-icon="trash"></span> Anuluj rezerwację</button>destrukcyjny</span>
+  </div>
+  <div class="demo">
+    <span class="label-under"><button class="btn btn--primary">Zarezerwuj</button>domyślny</span>
+    <span class="label-under"><button class="btn btn--primary" style="background:var(--c-primary-hover)">Zarezerwuj</button>najechanie</span>
+    <span class="label-under"><button class="btn btn--primary" style="outline:3px solid var(--c-focus);outline-offset:2px">Zarezerwuj</button>fokus</span>
+    <span class="label-under"><button class="btn btn--primary" disabled>Zarezerwuj</button>nieaktywny</span>
+    <span class="label-under"><button class="btn btn--primary is-loading">Zarezerwuj</button>ładowanie</span>
+  </div>
+  <p>Na widoku jest najwyżej jeden przycisk główny. Etykiety zaczynają się od czasownika („Zarezerwuj”, „Zamelduj się”). Akcja destrukcyjna wymaga potwierdzenia w oknie.</p>
+  <h4>Pola formularza</h4>
+  <div class="demo" style="align-items:flex-start">
+    <div class="field" style="width:190px"><label class="label">Domyślne</label><input class="input" placeholder="imie@pmiejska.edu.pl"></div>
+    <div class="field" style="width:190px"><label class="label">Fokus</label><input class="input" value="anna" style="border-color:var(--c-primary);box-shadow:0 0 0 3px color-mix(in srgb, var(--c-primary) 25%, transparent)"></div>
+    <div class="field" style="width:230px"><label class="label">Błąd</label><input class="input" value="anna@" aria-invalid="true"><span class="error-text"><span data-icon="alert" data-cls="icon--sm"></span> Niepoprawny format e-maila</span></div>
+  </div>
+  <h4>Wybór i przełączniki</h4>
+  <div class="demo">
+    <button class="chip" aria-pressed="false"><span data-icon="quiet" data-cls="icon--sm"></span> Strefa ciszy</button>
+    <button class="chip" aria-pressed="true"><span class="chip__check"><span data-icon="check" data-cls="icon--sm"></span></span><span data-icon="plug" data-cls="icon--sm"></span> Gniazdko</button>
+    <button class="switch" role="switch" aria-checked="true"><span class="switch__track"></span><span>Włączony</span></button>
+    <button class="switch" role="switch" aria-checked="false"><span class="switch__track"></span><span>Wyłączony</span></button>
+    <div class="segmented"><button aria-pressed="true">Jasny</button><button aria-pressed="false">Ciemny</button></div>
+    <div class="numstep"><button aria-label="Mniej"><span data-icon="minus"></span></button><output>2 h</output><button aria-label="Więcej"><span data-icon="plus"></span></button></div>
+  </div>
+  <h4>Statusy i zakładki</h4>
+  <div class="demo"><span class="badge badge--warning">Czeka na meldowanie</span><span class="badge badge--info">Potwierdzona</span><span class="badge badge--success">Trwa – zameldowano</span><span class="badge badge--neutral">Zakończona</span><span class="badge badge--danger">Nieobecność</span></div>
+  <div class="demo"><div class="tabs" role="tablist"><button role="tab" aria-selected="true">Nadchodzące<span class="count">2</span></button><button role="tab" aria-selected="false">Historia<span class="count">4</span></button></div></div>
+  <h4>Karta, komunikat, okno</h4>
+  <div class="demo" style="align-items:flex-start">
+    <div class="card" style="width:250px"><span class="overline">Najbliższa rezerwacja</span><h3 style="margin:4px 0 8px">Czytelnia cicha 2.14</h3><p class="muted" style="margin:0 0 12px">Dziś, <span class="tabular">14:00–16:00</span></p><button class="btn btn--primary btn--sm"><span data-icon="qr" data-cls="icon--sm"></span> Zamelduj się</button></div>
+    <div class="stack" style="--gap:12px;width:320px">
+      <div class="toast" style="animation:none"><span data-icon="checkCircle"></span><span>Anulowano rezerwację R-4907.</span><button class="btn btn--ghost btn--sm">Cofnij</button></div>
+      <div class="modal" style="animation:none;width:100%;padding:20px"><h3 style="font-size:18px;margin-bottom:8px">Anulować rezerwację?</h3><p class="muted" style="margin:0">Anulowanie przed rozpoczęciem nie liczy się jako nieobecność.</p><div class="modal__actions" style="margin-top:16px"><button class="btn btn--secondary btn--sm">Zostaw</button><button class="btn btn--danger btn--sm">Anuluj rezerwację</button></div></div>
+    </div>
+  </div>
+  <p>Okno modalne: tytuł w formie pytania, akcja bezpieczna po lewej, główna po prawej. Esc i kliknięcie tła zamykają okno. Animacje trwają 120–320 ms i są wyłączane, gdy system ma ustawione ograniczenie ruchu.</p>
+</section>
+
+<!-- =================================================================== 6 -->
+<section id="s6">
+  <h2>6. Design aplikacji</h2>
+  <p>Projekt graficzny wykonano jako interaktywny prototyp w HTML i CSS. To narzędzie tego samego rodzaju co Figma czy Adobe XD: widoki są połączone przejściami, a przyciski, formularze i okna działają po kliknięciu. Poniżej pokazano wszystkie 10 widoków (komputer 1440 px i telefon 390 px), stany elementów interaktywnych oraz motyw ciemny.</p>
+  <div id="designs"></div>
+
+  <h3>6.11. Elementy interaktywne – stany</h3>
+  <figure><div class="shots shots--3">
+    <div><img class="shot" src="img/st_login.png" alt="Logowanie z błędami walidacji"><figcaption>a) V01 – walidacja formularza</figcaption></div>
+    <div><img class="shot" src="img/st_seat.png" alt="Plan sali z wybranym miejscem"><figcaption>b) V05 – wybrane miejsce, przycisk aktywny</figcaption></div>
+    <div><img class="shot" src="img/st_empty.png" alt="Wyszukiwarka bez wyników"><figcaption>c) V03 – stan pusty wyszukiwania</figcaption></div>
+  </div></figure>
+  <figure><div class="shots shots--3">
+    <div><img class="shot" src="img/st_checkin.png" alt="Okno meldowania z błędnym kodem"><figcaption>d) V08 – okno meldowania, błędny kod</figcaption></div>
+    <div><img class="shot" src="img/st_undo.png" alt="Anulowana rezerwacja i komunikat Cofnij"><figcaption>e) V07 – anulowanie z „Cofnij”</figcaption></div>
+    <div><img class="shot" src="img/st_done.png" alt="Ekran sukcesu rezerwacji"><figcaption>f) V06 – rezerwacja potwierdzona</figcaption></div>
+  </div><figcaption>Rys. 6.11. Wybrane stany interfejsu na telefonie (390 px).</figcaption></figure>
+  <table class="t">
+    <tr><th style="width:9%">Widok</th><th>Elementy interaktywne</th></tr>
+    <tr><td>V01</td><td>Logowanie SSO, formularz e-mail z walidacją, pokaż / ukryj hasło.</td></tr>
+    <tr><td>V02</td><td>Odliczanie meldowania na żywo, „Zamelduj się”, „Szczegóły”, 3 przyciski szybkiego wyszukiwania, paski obłożenia (przejście do mapy).</td></tr>
+    <tr><td>V03</td><td>Filtry (dzień, godziny, budynek, udogodnienia, pokoje grupowe) – wyniki od razu, „Wyczyść”, przełącznik Lista / Mapa, karty sal.</td></tr>
+    <tr><td>V04</td><td>Budynki na mapie (mysz i klawiatura), panel budynku z listą sal.</td></tr>
+    <tr><td>V05</td><td>Dni, oś czasu, czas trwania (− / +), miejsca na planie, liczba osób w pokoju grupowym, „Zarezerwuj” z kontrolą limitu.</td></tr>
+    <tr><td>V06</td><td>Przypomnienie, akceptacja zasad (walidacja), „Potwierdź rezerwację”, „Dodaj do kalendarza” (plik .ics).</td></tr>
+    <tr><td>V07</td><td>Zakładki, „Szczegóły”, „Zamelduj się”, „Anuluj” (okno i „Cofnij”).</td></tr>
+    <tr><td>V08</td><td>Meldowanie: skan (symulacja) lub kod 4821, kalendarz, anulowanie.</td></tr>
+    <tr><td>V09</td><td>Przełączniki powiadomień, motyw jasny / ciemny / systemowy, „Wyloguj”, przełącznik roli (demo).</td></tr>
+    <tr><td>V10</td><td>Filtr budynku, „Zablokuj” (okno) i „Odblokuj” salę.</td></tr>
+  </table>
+
+  <h3>6.12. Motyw ciemny</h3>
+  <figure><div class="shots shots--2"><img class="shot" src="img/dark_V02.png" alt="Pulpit w motywie ciemnym"><img class="shot" src="img/dark_V08.png" alt="Szczegóły rezerwacji w motywie ciemnym"></div><figcaption>Rys. 6.12. Motyw ciemny (Profil → Motyw).</figcaption></figure>
+
+  <h3>6.13. Prototyp interaktywny</h3>
+  <ol>
+    <li>Otwórz <code>prototyp/index.html</code> w przeglądarce Chrome, Edge lub Firefox. Działa bez internetu i bez serwera.</li>
+    <li>Wybierz widok z listy albo zacznij od logowania i klikaj jak w prawdziwej aplikacji.</li>
+    <li>Pasek u góry: urządzenie (telefon, tablet, laptop, monitor), obrót ekranu, Hotspoty (podświetlenie elementów klikalnych), Siatka, Wireframe, Ciemny.</li>
+    <li>Skróty: ← → poprzedni / następny widok, 1–9 i 0 – widok o danym numerze.</li>
+  </ol>
+  <p>Uwaga: w prototypie dane są przykładowe, a czas zaczyna się o 13:48, aby pokazać meldowanie. Logowanie SSO i skan kamerą są symulowane. Odświeżenie strony przywraca stan początkowy.</p>
+</section>
+
+</main>
+
+<!-- Ikony prototypu i biblioteka diagramów (lokalnie – działa bez internetu) -->
+<script src="../interaktywna/assets/icons.js"></script>
+<script src="assets/mermaid.min.js"></script>
+<script>
+  "use strict";                                                                     // tryb ścisły
+  // Widoki: [identyfikator, nazwa, opis projektu graficznego]
+  const VIEWS = [
+    ["V01", "Logowanie", "Dwie kolumny: panel z hasłem aplikacji i formularz. Akcja główna (SSO) wyróżniona kolorem, logowanie e-mailem jako akcja drugorzędna. Na telefonie panel nad formularzem."],
+    ["V02", "Pulpit", "Najważniejsza jest najbliższa rezerwacja z odliczaniem i meldowaniem (wyróżniona tłem). Obok szybkie wyszukiwanie, pod spodem obłożenie budynków."],
+    ["V03", "Wyszukiwarka", "Filtry po lewej (na telefonie nad wynikami), wyniki po prawej. Karta sali: nazwa, budynek, piętro i liczba wolnych miejsc."],
+    ["V04", "Mapa kampusu", "Uproszczona mapa: kolor budynku i procent oznaczają obłożenie. Panel wybranego budynku z listą sal."],
+    ["V05", "Plan sali", "Dwa kroki na jednym ekranie: termin (dni i oś czasu) oraz miejsce na planie. Panel „Twój wybór” zawsze widoczny – na telefonie jako pasek u dołu."],
+    ["V06", "Rezerwacja", "Jedna wąska kolumna: podsumowanie, przypomnienie, akceptacja zasad i przycisk potwierdzenia. Po potwierdzeniu ekran sukcesu z kodem rezerwacji."],
+    ["V07", "Moje rezerwacje", "Zakładki z licznikami i karty z blokiem daty, które łatwo przejrzeć wzrokiem. Akcje zależą od statusu rezerwacji."],
+    ["V08", "Szczegóły i meldowanie", "Na górze pasek statusu z odliczaniem (kolor wg statusu), pod nim kod QR i instrukcja meldowania."],
+    ["V09", "Profil i ustawienia", "Ustawienia, dane konta i tryb demonstracyjny w osobnych kartach; zmiany zapisują się od razu."],
+    ["V10", "Panel administratora", "Trzy wskaźniki dnia i tabela sal z obłożeniem i blokowaniem. Na telefonie wiersze tabeli zamieniają się w karty."],
+  ];
+  // Adnotacje szkiców (te same co w trybie Wireframe prototypu)
+  const NOTES = {
+    V01: ["Logowanie kontem uczelnianym (SSO) – akcja główna, jedno kliknięcie.", "Logowanie e-mailem dla gości – akcja drugorzędna.", "Walidacja pól – komunikat błędu pod polem."],
+    V02: ["Najbliższa rezerwacja z odliczaniem i przyciskiem meldowania.", "Szybkie wyszukiwanie – gotowe filtry, jedno kliknięcie do wyników.", "Obłożenie budynków teraz – kolor, procent i opis słowny."],
+    V03: ["Filtry: termin, budynek, udogodnienia – wyniki aktualizują się od razu.", "Liczba wyników (ogłaszana czytnikom ekranu).", "Karta sali: budynek, piętro i liczba wolnych miejsc."],
+    V04: ["Przełącznik Lista / Mapa – te same filtry.", "Mapa kampusu – kolor budynku oznacza obłożenie.", "Panel wybranego budynku z listą sal."],
+    V05: ["Wybór dnia i godziny na osi czasu (sloty po 30 min).", "Plan sali – miejsca jako przyciski: wolne / zajęte / wybrane.", "Podsumowanie wyboru i przycisk rezerwacji (na telefonie pasek u dołu)."],
+    V06: ["Podsumowanie rezerwacji z możliwością zmiany.", "Wybór przypomnienia.", "Akceptacja zasad meldowania przed potwierdzeniem."],
+    V07: ["Zakładki: nadchodzące / historia.", "Karta rezerwacji z akcjami: szczegóły, meldowanie, anulowanie (z cofnięciem)."],
+    V08: ["Status z odliczaniem do końca meldowania.", "Kod QR i meldowanie: skan kodu na stanowisku lub wpisanie kodu.", "Anulowanie rezerwacji."],
+    V09: ["Ustawienia powiadomień i motywu – zapis natychmiastowy.", "Dane konta z systemu uczelni – tylko do odczytu.", "Przełącznik roli – tylko w prototypie."],
+    V10: ["Wskaźniki dnia: obłożenie, rezerwacje, nieobecności.", "Tabela sal z filtrem budynku.", "Blokada i odblokowanie sali."],
+  };
+  // Wireframes (rozdział 4) – każdy widok na osobnej stronie wydruku
+  document.getElementById("wireframes").innerHTML = VIEWS.map(([id, name], i) => `
+    <div class="view"><h3>4.${i + 1}. ${id} ${name}</h3>
+    <figure><div class="shots"><img class="shot" src="img/wf_d_${id}.png" alt="Wireframe ${name} – komputer"><img class="shot" src="img/wf_m_${id}.png" alt="Wireframe ${name} – telefon"></div>
+    <figcaption>Rys. 4.${i + 1}. ${id} ${name} – szkic: komputer 1440 px i telefon 390 px.</figcaption></figure>
+    <ol>${NOTES[id].map((t) => `<li>${t}</li>`).join("")}</ol></div>`).join(""); // szkice z adnotacjami
+  // Design (rozdział 6) – każdy widok na osobnej stronie wydruku
+  document.getElementById("designs").innerHTML = VIEWS.map(([id, name, desc], i) => `
+    <div class="view"><h3>6.${i + 1}. ${id} ${name}</h3><p>${desc}</p>
+    <figure><div class="shots"><img class="shot" src="img/d_${id}.png" alt="Projekt ${name} – komputer"><img class="shot" src="img/m_${id}.png" alt="Projekt ${name} – telefon"></div>
+    <figcaption>Rys. 6.${i + 1}. ${id} ${name} – komputer 1440 px i telefon 390 px.</figcaption></figure></div>`).join(""); // projekty graficzne
+  // Ikony w treści (data-icon) i logo (data-logo)
+  document.querySelectorAll("[data-icon]").forEach((el) => { el.outerHTML = MICONS.icon(el.dataset.icon, el.dataset.cls || ""); }); // ikony
+  document.querySelectorAll("[data-logo]").forEach((el) => { el.outerHTML = MICONS.logo(+el.dataset.logo); }); // logo
+  // Tabela ikon używanych w aplikacji (rozdział 5.4) – 8 w wierszu
+  const USED = ["home", "search", "map", "calendar", "user", "shield", "mail", "lock", "lockOff", "eye", "timer", "qr", "camera", "building", "layers", "pin", "clock", "quiet", "plug", "accessible", "users", "filter", "list", "door", "check", "checkCircle", "info", "alert", "plus", "minus", "edit", "trash", "calendarPlus", "arrowRight", "chevronLeft", "chevronRight", "logout", "sun", "moon", "x"].filter((n) => MICONS.names.includes(n)); // lista ikon
+  let rows = "";                                                                    // wiersze tabeli
+  for (let i = 0; i < USED.length; i += 8) rows += `<tr>${USED.slice(i, i + 8).map((n) => `<td>${MICONS.icon(n)}${n}</td>`).join("")}</tr>`; // wiersz z 8 ikonami
+  document.getElementById("icon-table").innerHTML = rows;                           // wstawienie tabeli
+  // Diagramy Mermaid – czarno-białe, krój Times New Roman jak w tekście
+  mermaid.initialize({ startOnLoad: false, theme: "base", securityLevel: "loose", flowchart: { curve: "basis", htmlLabels: false, useMaxWidth: true, padding: 12 },
+    themeVariables: { fontFamily: "\"Times New Roman\", Times, serif", fontSize: "15px", primaryColor: "#FFFFFF", primaryBorderColor: "#000000", primaryTextColor: "#000000", secondaryColor: "#FFFFFF", tertiaryColor: "#FFFFFF", lineColor: "#000000", textColor: "#000000", edgeLabelBackground: "#FFFFFF", clusterBkg: "#FFFFFF", clusterBorder: "#000000" } }); // konfiguracja
+  document.fonts.ready.finally(() => mermaid.run());                                // rysowanie po wczytaniu czcionek
+</script>
+</body>
+</html>
